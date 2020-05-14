@@ -66,14 +66,12 @@
  '(js2-enter-indents-newline t)
  '(js2-strict-trailing-comma-warning nil)
  '(js2-strict-var-redeclaration-warning nil)
- '(monky-hg-executable "/usr/local/bin/hg")
  '(org-startup-folded nil)
  '(pipenv-executable "/usr/local/bin/pipenv")
  '(powerline-default-separator 'wave)
  '(powerline-display-buffer-size nil)
  '(powerline-height 20)
  '(projectile-enable-caching t)
- '(python-shell-interpreter "/usr/local/bin/python")
  '(racer-rust-src-path
    "/Users/nalexander/.rustup/toolchains/1.40.0-x86_64-apple-darwin/lib/rustlib/src/rust/src")
  '(safe-local-variable-values
@@ -100,8 +98,27 @@
    '(column-marker-1-face ((t (:background "#CF1010"))))))
 
 (if (string= system-type "windows-nt")
- (setq exec-path
-   ("c:/Windows/system32" "C:/Windows" "C:/Windows/System32/Wbem" "C:/Windows/System32/WindowsPowerShell/v1.0/" "C:/Windows/System32/OpenSSH/" "C:/Program Files/dotnet/" "C:/Program Files/Microsoft SQL Server/130/Tools/Binn/" "C:/Program Files/Microsoft SQL Server/Client SDK/ODBC/170/Tools/Binn/" "C:/ProgramData/chocolatey/bin" "C:/Git/mingw64/bin" "C:/Git/cmd" "C:/Users/nalexander/.cargo/bin" "C:/Users/nalexander/AppData/Local/Microsoft/WindowsApps" "C:/LLVM/bin" "c:/Users/nalexander/AppData/Roaming/emax64/libexec/emacs/28.0.50/x86_64-w64-mingw32")))
+    (let ((paths '("C:/mozilla-build/python3"
+                   "C:/mozilla-build/python"
+                   "C:/mozilla-build/bin"
+                   "C:/mozilla-build/msys/bin"
+                   "C:/Windows/System32/Wbem"
+                   "C:/Windows/System32/WindowsPowerShell/v1.0/"
+                   "C:/Windows/System32/OpenSSH/"
+                   "C:/Program Files/dotnet/"
+                   "C:/Program Files/Microsoft SQL Server/130/Tools/Binn/"
+                   "C:/Program Files/Microsoft SQL Server/Client SDK/ODBC/170/Tools/Binn/"
+                   "C:/ProgramData/chocolatey/bin"
+                   "C:/Git/mingw64/bin"
+                   "C:/Git/cmd"
+                   "C:/Users/nalexander/.cargo/bin"
+                   "C:/Users/nalexander/AppData/Local/Microsoft/WindowsApps"
+                   "C:/LLVM/bin"
+                   "C:/Users/nalexander/AppData/Roaming/emax64/libexec/emacs/28.0.50/x86_64-w64-mingw32"
+                   "C:/Windows/system32"
+                   "C:/Windows")))
+      (setenv "PATH" (mapconcat 'identity paths ";"))
+      (setq exec-path (append paths (list "." exec-directory)))))
 
 (if (string= system-type "darwin")
  (add-to-list 'exec-path "/usr/local/bin" t))
