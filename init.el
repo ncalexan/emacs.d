@@ -447,3 +447,6 @@
     (occur regexp)))
 
 (straight-use-package 'request)
+
+(straight-use-package 'realgud)
+(straight-use-package 'realgud-lldb)
