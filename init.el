@@ -1,12 +1,39 @@
 ;;; init.el --- nalexander's config  -*- lexical-binding: t; coding:utf-8; fill-column: 119 -*-
 
-;; Speed up bootstrapping.  From https://github.com/yiufung/dot-emacs/blob/master/init.el.
-(setq gc-cons-threshold 402653184
-      gc-cons-percentage 0.6)
-(add-hook 'after-init-hook `(lambda ()
-                              (setq gc-cons-threshold 800000
-                                    gc-cons-percentage 0.1)
-                              (garbage-collect)) t)
+;; Heavily influenced by:
+;; - https://git.sr.ht/~bandali/.emacs.d
+
+;;; Code:
+
+;;; Emacs initialization
+
+(defvar nca/before-user-init-time (current-time)
+  "Value of `current-time' when Emacs begins loading `user-init-file'.")
+(message "Loading Emacs...done (%.3fs)"
+         (float-time (time-subtract nca/before-user-init-time
+                                    before-init-time)))
+
+;; temporarily increase `gc-cons-threshhold' and `gc-cons-percentage'
+;; during startup to reduce garbage collection frequency.  clearing
+;; `file-name-handler-alist' seems to help reduce startup time too.
+(defvar nca/gc-cons-threshold gc-cons-threshold)
+(defvar nca/gc-cons-percentage gc-cons-percentage)
+(defvar nca/file-name-handler-alist file-name-handler-alist)
+(setq gc-cons-threshold (* 400 1024 1024)  ; 400 MiB
+      gc-cons-percentage 0.6
+      file-name-handler-alist nil
+      ;; sidesteps a bug when profiling with esup
+      esup-child-profile-require-level 0)
+
+;; set them back to their defaults once we're done initializing
+(defun nca/post-init ()
+  (setq gc-cons-threshold nca/gc-cons-threshold
+        gc-cons-percentage nca/gc-cons-percentage
+        file-name-handler-alist nca/file-name-handler-alist))
+(add-hook 'after-init-hook #'nca/post-init)
+
+;; increase number of lines kept in *Messages* log
+(setq message-log-max 20000)
 
 ;; make it easy to edit .emacs
 (defun .emacs ()
@@ -79,22 +106,107 @@
 (if (string= system-type "darwin")
  (add-to-list 'exec-path "/usr/local/bin" t))
 
+;; optionally, uncomment to supress some byte-compiler warnings
+;;   (see C-h v byte-compile-warnings RET for more info)
+;; (setq byte-compile-warnings
+;;       '(not free-vars unresolved noruntime lexical make-local))
+
+
+;;; whoami
+
+(setq user-full-name "Nick Alexander"
+      user-mail-address "ncalexander@gmail.com")
+
+
+;;; comment macro
+
+;; useful for commenting out multiple sexps at a time
+(defmacro comment (&rest _)
+  "Comment out one or more s-expressions."
+  (declare (indent defun))
+  nil)
+
+
+;;; Package management
+
+;; No package.el  (for emacs 26 and before, uncomment the following)
+;; Not necessary when using straight.el
+;;   (C-h v straight-package-neutering-mode RET)
+
+(when (and
+       (not (featurep 'straight))
+       (version< emacs-version "27"))
+  (setq package-enable-at-startup nil)
+  ;; (package-initialize)
+  )
+
+;; for emacs 27 and later, we use early-init.el.  see
+;; https://git.savannah.gnu.org/cgit/emacs.git/commit/?id=24acb31c04b4048b85311d794e600ecd7ce60d3b
+
+;; straight.el
+
+;; Main engine start...
+
+(setq straight-repository-branch "develop"
+      straight-check-for-modifications '(check-on-save find-when-checking))
 
 ;; straight.el for package management.
 ;; From https://github.com/raxod502/straight.el#getting-started.
 
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
+(defun nca/bootstrap-straight ()
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+        (bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage)))
+
+;; Solid rocket booster ignition...
+
+(nca/bootstrap-straight)
+
+;; We have lift off!
+
+(setq straight-use-package-by-default t)
+
+(defmacro use-feature (name &rest args)
+  "Like `use-package', but with `straight-use-package-by-default' disabled."
+  (declare (indent defun))
+  `(use-package ,name
+     :straight nil
+     ,@args))
+
+(with-eval-after-load 'recentf
+  (add-to-list 'recentf-exclude
+               (expand-file-name "~/.emacs.d/straight/build/")))
+
+(defun nca/reload-init ()
+  "Reload init.el."
+  (interactive)
+  (setq nca/file-name-handler-alist file-name-handler-alist)
+  (load user-init-file)
+  (nca/post-init))
+
+;; use-package
+(straight-use-package 'use-package)
+(if nil                             ; set to t when need to debug init
+    (progn
+      (setq use-package-verbose t
+            use-package-expand-minimally nil
+            use-package-compute-statistics t
+            debug-on-error t)
+      (require 'use-package))
+  (setq use-package-verbose nil
+        use-package-expand-minimally t))
+
+(setq use-package-always-defer t)
+(require 'bind-key)
 
 ;; ;; Bootstrap `use-package'
 ;; (setq-default use-package-always-defer t ; Always defer load package to speed up startup time
@@ -109,6 +221,55 @@
 (straight-use-package 'org-plus-contrib)
 
 (straight-use-package 'bind-key)
+
+
+;;; Initial setup
+
+;; keep ~/.emacs.d clean
+(use-package no-littering
+  :demand t
+  :config
+  (savehist-mode 1)
+  (add-to-list 'savehist-additional-variables 'kill-ring)
+  (save-place-mode 1)
+  (setq auto-save-file-name-transforms
+        `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
+
+;; separate custom file (don't want it mixing with init.el)
+(use-feature custom
+  :no-require t
+  :config
+  (setq custom-file (no-littering-expand-etc-file-name "custom.el"))
+  (when (file-exists-p custom-file)
+    (load custom-file))
+  ;; while at it, treat themes as safe
+  (setf custom-safe-themes t))
+
+;; better $PATH (and other environment variable) handling
+(use-package exec-path-from-shell
+  :defer 0.4
+  ;; :init
+  ;; (setq exec-path-from-shell-arguments           nil
+  ;;       exec-path-from-shell-check-startup-files nil)
+  :config
+  (exec-path-from-shell-initialize)
+  ;; while we're at it, let's fix access to our running ssh-agent
+  (exec-path-from-shell-copy-env "SSH_AGENT_PID")
+  (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
+
+;; only one custom theme at a time
+(comment
+  (defadvice load-theme (before clear-previous-themes activate)
+    "Clear existing theme settings instead of layering them"
+    (mapc #'disable-theme custom-enabled-themes)))
+
+;; start up emacs server.  see
+;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Emacs-Server.html#Emacs-Server
+(use-feature server
+  :defer 0.4
+  :config (or (server-running-p) (server-mode)))
+
+;;; VCS.
 
 (straight-use-package 'magit)
 
