@@ -390,6 +390,10 @@
 ;; Who came up with whatever was on Meta-g?
 (global-set-key "\M-g" 'goto-line)
 
+(use-package goto-line-preview
+  :config
+  (global-set-key [remap goto-line] 'goto-line-preview))
+
 ;; Just type y or n for yes no statements
 (defalias 'yes-or-no-p 'y-or-n-p)
 
