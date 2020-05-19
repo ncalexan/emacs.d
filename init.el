@@ -641,7 +641,7 @@
 	     (list 'lambda nil
 		   (list 'setq 'process-environment
 			 (list 'quote (eshell-copy-environment))))))
-	(compile (concat "python3 ~/Mozilla/gecko/mach " (eshell-flatten-and-stringify args))))
+	(compile (concat "python3 " (or (locate-dominating-file "mach" "mach") "") "mach " (eshell-flatten-and-stringify args))))
     (throw 'eshell-replace-command
 	   (eshell-parse-command "*mach" (eshell-stringify-list
 					  (eshell-flatten-list args))))))
