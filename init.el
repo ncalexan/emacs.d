@@ -615,3 +615,70 @@
 
 (straight-use-package 'realgud)
 (straight-use-package 'realgud-lldb)
+
+(defun eshell/mach (&rest args)
+  "Use `compile' to run mach in the background."
+  (if (and ; eshell-current-subjob-p
+	   (eshell-interactive-output-p))
+      (let ((compilation-process-setup-function
+	     (list 'lambda nil
+		   (list 'setq 'process-environment
+			 (list 'quote (eshell-copy-environment))))))
+	(compile (concat "python3 ~/Mozilla/gecko/mach " (eshell-flatten-and-stringify args))))
+    (throw 'eshell-replace-command
+	   (eshell-parse-command "*mach" (eshell-stringify-list
+					  (eshell-flatten-list args))))))
+
+(put 'eshell/mach 'eshell-no-numeric-conversions t)
+
+(defun nca/eshell-mode-hook ()
+  (eshell/export "INSIDE_EMACS=1")
+  (eshell/export "EDITOR=ec"))
+
+(add-hook 'eshell-mode-hook 'nca/eshell-mode-hook)
+;; (remove-hook 'eshell-mode-hook 'nca/eshell-mode-hook)
+
+;; from http://sawyl.livejournal.com/69776.html
+
+;; Set a counter to ensure buffer name uniqueness
+(defvar eshell-buffer-count 0)
+
+(defun eshell-exotic-prompt-function ()
+  "Set the buffer title as well as the prompt."
+
+  (let* ((pwd (abbreviate-file-name (eshell/pwd)))
+         (host (system-name)))
+
+    ;; Set the name of the buffer using the eshell-buffer-count.
+    (if (equal mode-name "Eshell")
+        (rename-buffer
+         (format
+          "*%s:eshell@%s*"
+          eshell-buffer-count host)))
+
+    ;; Set the prompt string
+    (concat
+     pwd
+	 (if (= (user-uid) 0) " # " " $ "))))
+
+;; Set up the prompt and set the regexp to match the prompt string
+(setq eshell-prompt-function 'eshell-exotic-prompt-function
+      eshell-prompt-regexp "^[^#$\n]* [#$] ")
+
+(defun eshell-exotic-prompt-inc-mode-hook ()
+  (setq eshell-buffer-count
+        (1+ eshell-buffer-count)))
+
+(defun eshell-exotic-prompt-dec-mode-hook ()
+  (setq eshell-buffer-count
+        (1- eshell-buffer-count)))
+
+;; Increase the buffer count when a new eshell is created.
+(add-hook 'eshell-mode-hook 'eshell-exotic-prompt-inc-mode-hook)
+
+;; Decrease the buffer count when an eshell is destroyed.
+(add-hook 'eshell-exit-hook 'eshell-exotic-prompt-dec-mode-hook)
+
+(use-package shell-switcher
+  :custom
+  (shell-switcher-ask-before-creating-new t))
