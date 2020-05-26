@@ -164,7 +164,7 @@
 
 ;; Main engine start...
 
-(setq straight-repository-branch "develop"
+(setq straight-repository-branch "master"
       straight-check-for-modifications '(check-on-save find-when-checking))
 
 ;; straight.el for package management.
@@ -422,27 +422,8 @@
 (global-unset-key (kbd "C-z"))
 (global-unset-key (kbd "C-x C-z"))
 
-;; Interactive switching, please.
-(iswitchb-mode 1)
-(setq iswitchb-case 1)
-(setq iswitchb-delim "
-")
-(setq iswitchb-buffer-ignore '("^ "))
 ;; Who came up with list-buffers?
 (global-set-key "\C-x\C-b" 'ibuffer)
-
-(defadvice iswitchb-kill-buffer (after rescan-after-kill activate)
-  "*Regenerate the list of matching buffer names after a kill.
-    Necessary if using `uniquify' with `uniquify-after-kill-buffer-p'
-    set to non-nil."
-  (setq iswitchb-buflist iswitchb-matches)
-  (iswitchb-rescan))
-
-(defun iswitchb-rescan ()
-  "*Regenerate the list of matching buffer names."
-  (interactive)
-  (iswitchb-make-buflist iswitchb-default)
-  (setq iswitchb-rescan t))
 
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
