@@ -630,8 +630,8 @@
 
 (straight-use-package 'request)
 
-(straight-use-package 'realgud)
-(straight-use-package 'realgud-lldb)
+(use-package realgud)
+(use-package realgud-lldb)
 
 (defun eshell/mach (&rest args)
   "Use `compile' to run mach in the background."
