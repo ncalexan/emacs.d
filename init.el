@@ -52,8 +52,8 @@
  '(desktop-globals-to-save
    '(desktop-missing-file-warning tags-file-name tags-table-list search-ring regexp-search-ring register-alist file-name-history kill-ring))
  '(desktop-save-mode t)
- '(directory-abbrev-alist
-   '((".*/searchfox.org/mozilla-central/source/" . (expand-file-name "~/Mozilla/gecko/"))))
+ `(directory-abbrev-alist
+   '((".*/searchfox.org/mozilla-central/source/" . ,(expand-file-name "~/Mozilla/gecko/"))))
  '(dired-dwim-target t)
  '(git-commit-summary-max-length 100)
  '(global-flycheck-mode t)
