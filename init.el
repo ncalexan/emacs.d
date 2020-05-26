@@ -496,6 +496,9 @@
 (straight-use-package 'json-mode)
 (setq json-encoding-default-indentation "    ")
 
+(add-to-list 'auto-mode-alist '("\\.tzst\\'" . tar-mode))
+
+(add-to-list 'auto-mode-alist '("/\\.?mozconfig.*" . shell-script-mode))
 (add-to-list 'auto-mode-alist '("\\.build$" . python-mode))
 (add-to-list 'auto-mode-alist '("\\.mozbuild$" . python-mode))
 (add-to-list 'auto-mode-alist '("config\\.status$" . python-mode))
