@@ -589,6 +589,8 @@
   (require 'dired-x)
   (define-key dired-mode-map "=" 'dired-ediff-marked-files))
 
+(use-package dired-filter)
+
 ;; Shift the selected region right if distance is postive, left if negative
 (defun shift-region (distance)
   (let ((mark (mark)))
