@@ -704,3 +704,25 @@
 (use-package shell-switcher
   :custom
   (shell-switcher-ask-before-creating-new t))
+
+(use-package ivy
+  :diminish
+  ivy-mode
+  :init
+  (setq ivy-use-virtual-buffers t)
+  (ivy-mode 1)
+  :config
+  (setq ivy-wrap t)
+  (define-key ivy-minibuffer-map (kbd "C-s") 'ivy-next-line)
+  (define-key ivy-minibuffer-map (kbd "C-r") 'ivy-previous-line))
+
+(use-package counsel
+  :ensure t
+  :config
+  (counsel-mode 1))
+
+(use-package swiper
+  :ensure t
+  :config
+  (global-set-key (kbd "M-s s") 'counsel-grep-or-swiper)
+  (global-set-key (kbd "M-s r") 'counsel-grep-or-swiper-backward))
