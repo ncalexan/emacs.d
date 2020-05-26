@@ -705,6 +705,13 @@
   :custom
   (shell-switcher-ask-before-creating-new t))
 
+
+(use-package with-editor
+  :config
+  (add-hook 'shell-mode-hook  'with-editor-export-editor)
+  (add-hook 'term-exec-hook   'with-editor-export-editor)
+  (add-hook 'eshell-mode-hook 'with-editor-export-editor))
+
 (use-package ivy
   :diminish
   ivy-mode
