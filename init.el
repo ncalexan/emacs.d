@@ -675,3 +675,29 @@
   :config
   (global-set-key (kbd "M-s s") 'counsel-grep-or-swiper)
   (global-set-key (kbd "M-s r") 'counsel-grep-or-swiper-backward))
+
+;; Helpers for browsing Bugzilla and quickly googling things.
+(defun nca/bugzilla-url-at-point ()
+  (or (thing-at-point 'url t)
+      (let ((f (thing-at-point 'filename t)))
+        (and f (concat "https://bugzilla.mozilla.org/show_bug.cgi?id=" f)))))
+
+(defun nca/browse-url-bugzilla ()
+  (interactive)
+  (cl-letf (((symbol-function 'browse-url-url-at-point) #'nca/bugzilla-url-at-point))
+    (call-interactively 'browse-url)))
+
+(defalias 'bz 'nca/browse-url-bugzilla)
+
+(defun nca/google-url-at-point ()
+  (or (thing-at-point 'url t)
+      (let ((f (thing-at-point 'filename t)))
+        (and f (concat "https://www.google.com/search?q=" f)))))
+
+(defun nca/browse-url-google (&rest args)
+  (interactive)
+  (cl-letf (((symbol-function 'browse-url-url-at-point) #'nca/google-url-at-point))
+    (call-interactively 'browse-url)))
+
+(defalias 'g 'nca/browse-url-google)
+
