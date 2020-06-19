@@ -692,6 +692,8 @@ file tree and can be significantly faster for large repositories."
   (add-hook 'term-exec-hook   'with-editor-export-editor)
   (add-hook 'eshell-mode-hook 'with-editor-export-editor))
 
+(use-package diminish)
+
 (use-package ivy
   :diminish
   ivy-mode
@@ -700,13 +702,21 @@ file tree and can be significantly faster for large repositories."
   (ivy-mode 1)
   :config
   (setq ivy-wrap t)
+  (setq ivy-fixed-height-minibuffer t)
   (define-key ivy-minibuffer-map (kbd "C-s") 'ivy-next-line)
-  (define-key ivy-minibuffer-map (kbd "C-r") 'ivy-previous-line))
+  (define-key ivy-minibuffer-map (kbd "C-r") 'ivy-previous-line)
+  (setq ivy-re-builders-alist
+        '((t . ivy--regex-ignore-order)))
+  (setq projectile-completion-system 'ivy)
+  (setq magit-completing-read-function 'ivy-completing-read))
 
 (use-package counsel
+  :diminish
+  counsel-mode
   :ensure t
   :config
-  (counsel-mode 1))
+  (counsel-mode 1)
+  (setcdr (assoc 'counsel-M-x ivy-initial-inputs-alist) ""))
 
 (use-package swiper
   :ensure t
@@ -714,6 +724,10 @@ file tree and can be significantly faster for large repositories."
   (global-set-key (kbd "M-s s") 'counsel-grep-or-swiper)
   (global-set-key (kbd "M-s r") 'counsel-grep-or-swiper-backward))
 
+(use-package counsel-projectile
+  :ensure t
+  :config
+  (counsel-projectile-mode 1))
 ;; Helpers for browsing Bugzilla and quickly googling things.
 (defun nca/bugzilla-url-at-point ()
   (or (thing-at-point 'url t)
