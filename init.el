@@ -289,6 +289,32 @@
 ;;; VCS.
 
 (straight-use-package 'magit)
+; (straight-use-package
+; '(forge :type git :host github :repo "magit/forge" :after magit))
+(straight-use-package '(forge :host github :repo "magit/forge"))
+
+(defun nca/magit-narrow (oldfun &rest args)
+  "Restrict `git diff` to files with status changes in `magit-insert-unstaged-changes'.
+
+When using the `fsmonitor` extension, `git status` is very fast,
+while `git diff` is very slow: it appears to walk the file tree
+without using the `fsmonitor` cache.  This advice works around
+this by first collecting files with status changes and then
+restricting `git diff` to those files, which avoids walking the
+file tree and can be significantly faster for large repositories."
+  (let* ((get-dirty-files (lambda ()
+                            (mapcar (lambda (s) (car (last (split-string s))))
+                                    (apply #'magit-git-items "status" "--porcelain=2" "-z" "--" magit-buffer-diff-files))))
+         (dirty-files nil))
+    (if (bound-and-true-p magit-refresh-verbose)
+        (progn (require 'benchmark)
+               (message "  %-50s %s" "nca/magit-narrow"
+                        (benchmark-elapse (setq dirty-files (funcall get-dirty-files)))))
+      (setq dirty-files (funcall get-dirty-files)))
+    (let ((magit-buffer-diff-files (cons ".git" dirty-files)))
+      (apply oldfun args))))
+
+(advice-add 'magit-insert-unstaged-changes :around 'nca/magit-narrow)
 
 (straight-use-package
  '(monky :type git :host github :repo "ananthakumaran/monky"
