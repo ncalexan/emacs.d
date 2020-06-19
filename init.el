@@ -753,3 +753,7 @@ file tree and can be significantly faster for large repositories."
 
 (defalias 'g 'nca/browse-url-google)
 
+;; From https://github.com/DamienCassou/emacs.d/blob/56f7f8e71258a48e6201090299aa95f38b8266fb/init.el#L1018-L1030.
+(use-package expand-region
+  :bind ("C-=" . er/expand-region))
+
