@@ -693,7 +693,6 @@ file tree and can be significantly faster for large repositories."
 
 (use-package package-lint)
 
-
 (use-package with-editor
   :demand
   :config
