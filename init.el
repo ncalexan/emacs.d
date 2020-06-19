@@ -845,3 +845,6 @@ file tree and can be significantly faster for large repositories."
       (ansi-color-apply-on-region compilation-filter-start (point-max))))
   :hook (compilation-filter . nca/colorize-compilation-buffer))
 
+(straight-use-package
+ '(cram-test-mode :type git :host github :repo "macmodrov/cram-test-mode"))
+
