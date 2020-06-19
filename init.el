@@ -475,6 +475,7 @@ file tree and can be significantly faster for large repositories."
 (defalias 'qr #'query-replace)
 (defalias 'qrr #'query-replace-regexp)
 (defalias 'eb #'eval-buffer)
+(defalias 'er #'eval-region)
 (defalias 'ir #'indent-region)
 
 ;; http://ergoemacs.org/emacs/emacs_alias.html
