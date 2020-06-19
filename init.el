@@ -76,7 +76,6 @@
  '(safe-local-variable-values
    '((checkdoc-package-keywords-flag)
      (prompt-to-byte-compile)))
- '(shell-file-name "C:/mozilla-build/msys/bin/bash.exe")
  '(show-paren-mode t nil (paren))
  '(sp-base-key-bindings nil))
 
@@ -98,33 +97,35 @@
    '(column-marker-1-face ((t (:background "#CF1010"))))))
 
 (if (string= system-type "windows-nt")
-    (let ((paths '("C:/mozilla-build/python3"
-                   "C:/mozilla-build/python"
-                   "C:/mozilla-build/python/Scripts"
-                   "C:/mozilla-build/bin"
-                   "C:/mozilla-build/msys/local/bin"
-                   "C:/mozilla-build/msys/bin"
-                   "C:/mozilla-build/nsis-3.01"
-                   "C:/Windows/System32/Wbem"
-                   "C:/Windows/System32/WindowsPowerShell/v1.0/"
-                   "C:/Windows/System32/OpenSSH/"
-                   "C:/Program Files/dotnet/"
-                   "C:/Program Files/Microsoft SQL Server/130/Tools/Binn/"
-                   "C:/Program Files/Microsoft SQL Server/Client SDK/ODBC/170/Tools/Binn/"
-                   "C:/ProgramData/chocolatey/bin"
-                   "C:/Git/mingw64/bin"
-                   "C:/Git/cmd"
-                   "C:/Users/nalexander/.cargo/bin"
-                   "C:/Users/nalexander/AppData/Local/Microsoft/WindowsApps"
-                   "C:/LLVM/bin"
-                   "C:/Users/nalexander/AppData/Roaming/emax64/libexec/emacs/28.0.50/x86_64-w64-mingw32"
-                   "C:/Windows/system32"
-                   "C:/Windows")))
-      (setenv "PATH" (mapconcat 'identity paths ";"))
-      (setq exec-path (append paths (list "." exec-directory)))))
+    (setq shell-file-name "C:/mozilla-build/msys/bin/bash.exe")
+  (let ((paths '("C:/mozilla-build/python3"
+                 "C:/mozilla-build/python"
+                 "C:/mozilla-build/python/Scripts"
+                 "C:/mozilla-build/bin"
+                 "C:/mozilla-build/msys/local/bin"
+                 "C:/mozilla-build/msys/bin"
+                 "C:/mozilla-build/nsis-3.01"
+                 "C:/Windows/System32/Wbem"
+                 "C:/Windows/System32/WindowsPowerShell/v1.0/"
+                 "C:/Windows/System32/OpenSSH/"
+                 "C:/Program Files/dotnet/"
+                 "C:/Program Files/Microsoft SQL Server/130/Tools/Binn/"
+                 "C:/Program Files/Microsoft SQL Server/Client SDK/ODBC/170/Tools/Binn/"
+                 "C:/ProgramData/chocolatey/bin"
+                 "C:/Git/mingw64/bin"
+                 "C:/Git/cmd"
+                 "C:/Users/nalexander/.cargo/bin"
+                 "C:/Users/nalexander/AppData/Local/Microsoft/WindowsApps"
+                 "C:/LLVM/bin"
+                 "C:/Users/nalexander/AppData/Roaming/emax64/libexec/emacs/28.0.50/x86_64-w64-mingw32"
+                 "C:/Windows/system32"
+                 "C:/Windows")))
+    (setenv "PATH" (mapconcat 'identity paths ";"))
+    (setq exec-path (append paths (list "." exec-directory)))))
 
 (if (string= system-type "darwin")
  (add-to-list 'exec-path "/usr/local/bin" t))
+
 
 ;; optionally, uncomment to supress some byte-compiler warnings
 ;;   (see C-h v byte-compile-warnings RET for more info)
