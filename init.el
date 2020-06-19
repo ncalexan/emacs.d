@@ -686,6 +686,7 @@ file tree and can be significantly faster for large repositories."
 
 
 (use-package with-editor
+  :demand
   :config
   (add-hook 'shell-mode-hook  'with-editor-export-editor)
   (add-hook 'term-exec-hook   'with-editor-export-editor)
