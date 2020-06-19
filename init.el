@@ -342,6 +342,7 @@ file tree and can be significantly faster for large repositories."
 (defalias 'pc #'projectile-compile-project)
 (defalias 'pr #'projectile-run-project)
 (defalias 'ms #'projectile-vc)
+(defalias 'occ #'occur)
 
 (straight-use-package 'wgrep-ag)
 (autoload 'wgrep-ag-setup "wgrep-ag")
