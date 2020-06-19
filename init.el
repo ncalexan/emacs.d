@@ -54,7 +54,6 @@
  '(desktop-save-mode t)
  `(directory-abbrev-alist
    '((".*/searchfox.org/mozilla-central/source/" . ,(expand-file-name "~/Mozilla/gecko/"))))
- '(dired-dwim-target t)
  '(git-commit-summary-max-length 100)
  '(global-flycheck-mode t)
  '(grep-find-ignored-directories
@@ -424,7 +423,16 @@ file tree and can be significantly faster for large repositories."
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
 
-(setq dired-recursive-deletes 'top)
+(defun nca/dired-mode-hook ()
+    (dired-hide-details-mode))
+
+(use-feature dired
+  :config
+  (setq dired-recursive-deletes 'top)
+  (setq dired-dwim-target 1)
+  (setq dired-hide-details-mode t)
+  (setq dired-hide-details-hide-symlink-targets nil)
+  :hook (dired-mode . nca/dired-mode-hook))
 
 (straight-use-package 'whitespace)
 (straight-use-package 'recentf)
@@ -601,6 +609,8 @@ file tree and can be significantly faster for large repositories."
   (define-key dired-mode-map "=" 'dired-ediff-marked-files))
 
 (use-package dired-filter)
+
+(dired-async-mode 1)
 
 ;; Shift the selected region right if distance is postive, left if negative
 (defun shift-region (distance)
