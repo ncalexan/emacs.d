@@ -848,3 +848,4 @@ file tree and can be significantly faster for large repositories."
 (straight-use-package
  '(cram-test-mode :type git :host github :repo "macmodrov/cram-test-mode"))
 
+(use-package elisp-lint)
