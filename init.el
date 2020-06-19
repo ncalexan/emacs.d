@@ -837,3 +837,11 @@ file tree and can be significantly faster for large repositories."
          ("C-<" . mc/mark-previous-like-this)
          ("C-c C-<" . mc/mark-all-like-this)))
 
+;; From https://stackoverflow.com/a/62282209.
+(use-package ansi-color
+  :config
+  (defun nca/colorize-compilation-buffer ()
+    (when (eq major-mode 'compilation-mode)
+      (ansi-color-apply-on-region compilation-filter-start (point-max))))
+  :hook (compilation-filter . nca/colorize-compilation-buffer))
+
