@@ -738,9 +738,37 @@ file tree and can be significantly faster for large repositories."
   :config
   (counsel-projectile-mode 1))
 
+
+;; Noodling around searchfox "flags/toggles".
+
+;; (defun foo () (insert "ABCDE
+;; TEST"))
+
+;; ;; (add-hook 'minibuffer-setup-hook 'foo)
+
+;; (minibuffer-with-setup-hook
+;;     'foo
+;;   (ivy-completing-read "prompt" ()))
+
+;; ;;  (call-interactively #'ivy-completing-read))
+
+;; (defun my-read-mb-lines (prompt some-keyseq)
+;;   (let ((keymap (copy-keymap minibuffer-local-map)))
+;;     (define-key keymap (kbd "C-j") 'newline)
+;;     (define-key keymap some-keyseq 'exit-minibuffer)
+;;     (read-from-minibuffer prompt nil keymap)))
+
+;; ;; Calling example:
+
+;; (my-read-mb-lines "Insert text (C-s to submit): " (kbd "RET"))
+
 ;; Mostly for a good default value for `occur`.
 (use-package replace+
   :demand)
+
+;; use the settings in ~/.ssh/config instead of Tramp's
+(setq tramp-use-ssh-controlmaster-options nil)
+
 ;; Helpers for browsing Bugzilla and quickly googling things.
 (defun nca/bugzilla-url-at-point ()
   (or (thing-at-point 'url t)
@@ -765,6 +793,29 @@ file tree and can be significantly faster for large repositories."
     (call-interactively 'browse-url)))
 
 (defalias 'g 'nca/browse-url-google)
+
+(use-package tramp
+  :demand
+  :init
+  (setq tramp-default-method "scp")
+  :config
+  (setq tramp-verbose 6)
+  (add-to-list 'tramp-remote-path 'tramp-own-remote-path t)
+
+  (connection-local-set-profile-variables
+   'remote-bash
+   '((shell-file-name . "/bin/bash")
+     (shell-command-switch . "-c")
+     (shell-interactive-switch . "-i")
+     (shell-login-switch . "-l")))
+
+  (connection-local-set-profile-variables
+   'remote-null-device
+   '((null-device . "/dev/null")))
+
+  (connection-local-set-profiles
+   '(:machine "weirdo")
+   'remote-bash 'remote-null-device))
 
 ;; From https://www.reddit.com/r/emacs/comments/h138pp/what_is_the_best_method_you_have_found_for/ftqz8l3/.
 (defun nca/add-point-to-find-tag-marker-ring (&rest r)
