@@ -684,6 +684,8 @@ file tree and can be significantly faster for large repositories."
   :custom
   (shell-switcher-ask-before-creating-new t))
 
+(use-package package-lint)
+
 
 (use-package with-editor
   :demand
