@@ -710,6 +710,15 @@ file tree and can be significantly faster for large repositories."
   (setq projectile-completion-system 'ivy)
   (setq magit-completing-read-function 'ivy-completing-read))
 
+(use-package dumb-jump
+  :init
+  (progn
+    (setq dumb-jump-selector 'ivy)
+    (dumb-jump-mode 1))
+  :bind
+  (:map dumb-jump-mode-map
+        ("M-." . dumb-jump-go)))
+
 (use-package counsel
   :diminish
   counsel-mode
