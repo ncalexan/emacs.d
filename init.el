@@ -76,6 +76,7 @@
  '(safe-local-variable-values
    '((checkdoc-package-keywords-flag)
      (prompt-to-byte-compile)))
+ '(shell-file-name "C:/mozilla-build/msys/bin/bash.exe")
  '(show-paren-mode t nil (paren))
  '(sp-base-key-bindings nil))
 
@@ -99,8 +100,11 @@
 (if (string= system-type "windows-nt")
     (let ((paths '("C:/mozilla-build/python3"
                    "C:/mozilla-build/python"
+                   "C:/mozilla-build/python/Scripts"
                    "C:/mozilla-build/bin"
+                   "C:/mozilla-build/msys/local/bin"
                    "C:/mozilla-build/msys/bin"
+                   "C:/mozilla-build/nsis-3.01"
                    "C:/Windows/System32/Wbem"
                    "C:/Windows/System32/WindowsPowerShell/v1.0/"
                    "C:/Windows/System32/OpenSSH/"
@@ -327,7 +331,8 @@ file tree and can be significantly faster for large repositories."
 ;; if `monky-process-type' is set to cmdserver then monky will spawn a single
 ;; cmdserver and communicate over pipe.
 ;; Available only on mercurial versions 1.9 or higher
-(setq monky-process-type 'cmdserver)
+(unless (string= system-type "windows-nt")
+  (setq monky-process-type 'cmdserver))
 
 (straight-use-package 'ag)
 (straight-use-package 'ripgrep)
@@ -530,8 +535,6 @@ file tree and can be significantly faster for large repositories."
   (setq fill-column 80))
 (add-hook 'groovy-mode-hook 'nca-groovy-mode-hook)
 
-(eval-after-load 'image-mode '(require 'image-dimensions-minor-mode))
-
 ;; From https://www.emacswiki.org/emacs/UnfillParagraph.
 ;;; Stefan Monnier <foo at acm.org>. It is the opposite of fill-paragraph
 (defun unfill-paragraph (&optional region)
@@ -673,6 +676,8 @@ file tree and can be significantly faster for large repositories."
 (put 'eshell/mach 'eshell-no-numeric-conversions t)
 
 (defun nca/eshell-mode-hook ()
+  (when (string= system-type "windows-nt")
+    (eshell/export "MOZILLABUILD=c:\\mozilla-build\\"))
   (eshell/export "INSIDE_EMACS=1")
   (eshell/export "EDITOR=ec")
   (define-key eshell-mode-map (kbd "<tab>")
@@ -797,28 +802,29 @@ file tree and can be significantly faster for large repositories."
 
 (defalias 'g 'nca/browse-url-google)
 
-(use-package tramp
-  :demand
-  :init
-  (setq tramp-default-method "scp")
-  :config
-  (setq tramp-verbose 6)
-  (add-to-list 'tramp-remote-path 'tramp-own-remote-path t)
+(unless (string= system-type "windows-nt")
+  (use-package tramp
+    :demand
+    :init
+    (setq tramp-default-method "scp")
+    :config
+    (setq tramp-verbose 6)
+    (add-to-list 'tramp-remote-path 'tramp-own-remote-path t)
 
-  (connection-local-set-profile-variables
-   'remote-bash
-   '((shell-file-name . "/bin/bash")
-     (shell-command-switch . "-c")
-     (shell-interactive-switch . "-i")
-     (shell-login-switch . "-l")))
+    (connection-local-set-profile-variables
+     'remote-bash
+     '((shell-file-name . "/bin/bash")
+       (shell-command-switch . "-c")
+       (shell-interactive-switch . "-i")
+       (shell-login-switch . "-l")))
 
-  (connection-local-set-profile-variables
-   'remote-null-device
-   '((null-device . "/dev/null")))
+    (connection-local-set-profile-variables
+     'remote-null-device
+     '((null-device . "/dev/null")))
 
-  (connection-local-set-profiles
-   '(:machine "weirdo")
-   'remote-bash 'remote-null-device))
+    (connection-local-set-profiles
+     '(:machine "weirdo")
+     'remote-bash 'remote-null-device)))
 
 ;; From https://www.reddit.com/r/emacs/comments/h138pp/what_is_the_best_method_you_have_found_for/ftqz8l3/.
 (defun nca/add-point-to-find-tag-marker-ring (&rest r)
@@ -852,3 +858,7 @@ file tree and can be significantly faster for large repositories."
  '(cram-test-mode :type git :host github :repo "macmodrov/cram-test-mode"))
 
 (use-package elisp-lint)
+
+(use-package shell-switcher
+  :custom
+  (shell-switcher-ask-before-creating-new t))
