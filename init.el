@@ -30,7 +30,7 @@
   (setq gc-cons-threshold nca/gc-cons-threshold
         gc-cons-percentage nca/gc-cons-percentage
         file-name-handler-alist nca/file-name-handler-alist))
-(add-hook 'after-init-hook #'nca/post-init)
+(add-hook 'after-init-hook 'nca/post-init)
 
 ;; increase number of lines kept in *Messages* log
 (setq message-log-max 20000)
