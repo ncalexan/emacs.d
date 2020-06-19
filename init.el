@@ -737,6 +737,10 @@ file tree and can be significantly faster for large repositories."
   :ensure t
   :config
   (counsel-projectile-mode 1))
+
+;; Mostly for a good default value for `occur`.
+(use-package replace+
+  :demand)
 ;; Helpers for browsing Bugzilla and quickly googling things.
 (defun nca/bugzilla-url-at-point ()
   (or (thing-at-point 'url t)
