@@ -753,6 +753,17 @@ file tree and can be significantly faster for large repositories."
 
 (defalias 'g 'nca/browse-url-google)
 
+;; From https://www.reddit.com/r/emacs/comments/h138pp/what_is_the_best_method_you_have_found_for/ftqz8l3/.
+(defun nca/add-point-to-find-tag-marker-ring (&rest r)
+  "Handy advising function to use find-tag-marker-ring (R ignored)."
+  (ring-insert find-tag-marker-ring (point-marker)))
+
+(advice-add 'find-function :before 'nca/add-point-to-find-tag-marker-ring)
+(advice-add 'describe-function :before 'nca/add-point-to-find-tag-marker-ring)
+(advice-add 'counsel-imenu :before 'nca/add-point-to-find-tag-marker-ring)
+(advice-add 'projectile-grep :before 'nca/add-point-to-find-tag-marker-ring)
+(advice-add 'projectile-ag :before 'nca/add-point-to-find-tag-marker-ring)
+
 ;; From https://github.com/DamienCassou/emacs.d/blob/56f7f8e71258a48e6201090299aa95f38b8266fb/init.el#L1018-L1030.
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
