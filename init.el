@@ -288,7 +288,7 @@
 ;; start up emacs server.  see
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Emacs-Server.html#Emacs-Server
 (use-feature server
-  :defer 0.4
+  :defer 1
   :config (or (server-running-p) (server-mode)))
 
 ;;; VCS.
