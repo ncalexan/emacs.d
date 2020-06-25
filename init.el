@@ -71,8 +71,6 @@
  '(powerline-display-buffer-size nil)
  '(powerline-height 20)
  '(projectile-enable-caching t)
- '(racer-rust-src-path
-   "/Users/nalexander/.rustup/toolchains/1.40.0-x86_64-apple-darwin/lib/rustlib/src/rust/src")
  '(safe-local-variable-values
    '((checkdoc-package-keywords-flag)
      (prompt-to-byte-compile)))
@@ -365,7 +363,12 @@ file tree and can be significantly faster for large repositories."
 (straight-use-package 'cargo)
 (add-hook 'rust-mode-hook #'cargo-minor-mode)
 
-(straight-use-package 'racer)
+(use-package racer
+ :config
+ (when (string= system-type "windows-nt")
+   (setq racer-rust-src-path
+         "/Users/nalexander/.rustup/toolchains/stable-x86_64-pc-windows-msvc/lib/rustlib/src/rust/src")))
+
 (add-hook 'racer-mode-hook #'eldoc-mode)
 (add-hook 'racer-mode-hook #'company-mode)
 
