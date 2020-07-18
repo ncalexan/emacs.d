@@ -530,6 +530,7 @@ file tree and can be significantly faster for large repositories."
 (add-to-list 'auto-mode-alist '("/\\.?mozconfig.*" . shell-script-mode))
 (add-to-list 'auto-mode-alist '("\\.build$" . python-mode))
 (add-to-list 'auto-mode-alist '("\\.mozbuild$" . python-mode))
+(add-to-list 'auto-mode-alist '("\\.configure$" . python-mode))
 (add-to-list 'auto-mode-alist '("config\\.status$" . python-mode))
 
 (straight-use-package 'groovy-mode)
