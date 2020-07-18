@@ -833,7 +833,7 @@ file tree and can be significantly faster for large repositories."
 
 (unless (string= system-type "windows-nt")
   (use-package tramp
-    :demand
+    :ensure t
     :init
     (setq tramp-default-method "scp")
     :config
@@ -868,18 +868,21 @@ file tree and can be significantly faster for large repositories."
 
 ;; From https://github.com/DamienCassou/emacs.d/blob/56f7f8e71258a48e6201090299aa95f38b8266fb/init.el#L1018-L1030.
 (use-package expand-region
+  :ensure t
   :bind ("C-=" . er/expand-region))
 
 (use-package multiple-cursors
+  :ensure t
   :bind (("C->" . mc/mark-next-like-this)  ;; Maybe too painful in `python-mode`?
          ("C-<" . mc/mark-previous-like-this)
          ("C-c C-<" . mc/mark-all-like-this)))
 
 ;; From https://stackoverflow.com/a/62282209.
 (use-package ansi-color
+  :ensure t
   :config
   (defun nca/colorize-compilation-buffer ()
-    (when (eq major-mode 'compilation-mode)
+    (when (derived-mode-p 'compilation-mode)
       (ansi-color-apply-on-region compilation-filter-start (point-max))))
   :hook (compilation-filter . nca/colorize-compilation-buffer))
 
