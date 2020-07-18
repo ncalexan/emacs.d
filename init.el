@@ -204,6 +204,9 @@
      :straight nil
      ,@args))
 
+;; Otherwise, we follow `describe-function` links into `straight/build` rather than `straight/repos`.
+(setq find-file-visit-truename t)
+
 (with-eval-after-load 'recentf
   (add-to-list 'recentf-exclude
                (expand-file-name "~/.emacs.d/straight/build/")))
