@@ -741,6 +741,21 @@ file tree and can be significantly faster for large repositories."
   (:map dumb-jump-mode-map
         ("M-." . dumb-jump-go)))
 
+(setq xref-prompt-for-identifier
+      '(not
+        xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame
+        xref-find-references))
+
+;; From https://github.com/joaotavora/eglot/issues/129#issuecomment-444130367:
+;; Bridge projectile and project together so packages that depend on project
+;; work (like xref).
+(defun nca/projectile-project-find-function (dir)
+  (let ((root (projectile-project-root dir)))
+    (and root (cons 'transient root))))
+
+(with-eval-after-load 'project
+  (add-to-list 'project-find-functions 'nca/projectile-project-find-function))
+
 (use-package counsel
   :diminish
   counsel-mode
