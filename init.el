@@ -721,6 +721,8 @@ file tree and can be significantly faster for large repositories."
   (define-key ivy-minibuffer-map (kbd "C-r") 'ivy-previous-line)
   (setq ivy-re-builders-alist
         '((t . ivy--regex-ignore-order)))
+  ;; Order buffers by recency: see https://github.com/abo-abo/swiper/issues/1344.
+  (setq ivy-sort-matches-functions-alist '((t . nil)))
   (setq projectile-completion-system 'ivy)
   (setq magit-completing-read-function 'ivy-completing-read))
 
