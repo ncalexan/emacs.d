@@ -906,3 +906,6 @@ file tree and can be significantly faster for large repositories."
 (use-package shell-switcher
   :custom
   (shell-switcher-ask-before-creating-new t))
+
+(straight-use-package
+ '(powershell :type git :host github :repo "jschaf/powershell.el"))
