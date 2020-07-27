@@ -672,6 +672,19 @@ file tree and can be significantly faster for large repositories."
 (use-package realgud)
 (use-package realgud-lldb)
 
+;; It's not clear to me why just setting the "python" interpreter doesn't work on Windows, but it doesn't, so we do it
+;; by hand.
+;;
+;; TODO: parse the list of python2/python3 commands ourselves and do our own dispatch to save process re-invocation.
+(defun nca/eshell-mach-interpreter (command &rest args)
+  (throw 'eshell-replace-command
+         (eshell-parse-command shell-file-name (cons command args))))
+
+(with-eval-after-load 'eshell
+  (add-to-list
+   'eshell-interpreter-alist (cons "^\\(\\./\\)?mach\\'"
+                                   #'nca/eshell-mach-interpreter)))
+
 (defun eshell/mach (&rest args)
   "Use `compile' to run mach in the background."
   (if (and ; eshell-current-subjob-p
@@ -691,7 +704,7 @@ file tree and can be significantly faster for large repositories."
   (when (string= system-type "windows-nt")
     (eshell/export "MOZILLABUILD=c:\\mozilla-build\\"))
   (eshell/export "INSIDE_EMACS=1")
-  (eshell/export "EDITOR=ec")
+  (eshell/export "EDITOR=emacsclient")
   (define-key eshell-mode-map (kbd "<tab>")
     (lambda () (interactive) (pcomplete-std-complete))))
 
