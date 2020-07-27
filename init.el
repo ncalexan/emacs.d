@@ -58,7 +58,6 @@
  '(global-flycheck-mode t)
  '(grep-find-ignored-directories
    '("SCCS" "RCS" "CVS" "MCVS" ".svn" ".git" ".hg" ".bzr" "_MTN" "_darcs" "{arch}" "node_modules"))
- '(hg-binary "/Users/ncalexan/bin/hg")
  '(hippie-expand-try-functions-list
    '(try-expand-dabbrev-visible try-expand-dabbrev try-expand-dabbrev-all-buffers try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-expand-line try-expand-dabbrev-from-kill try-complete-lisp-symbol-partially try-complete-lisp-symbol))
  '(js2-cleanup-whitespace t)
@@ -337,6 +336,7 @@ file tree and can be significantly faster for large repositories."
 ;; cmdserver and communicate over pipe.
 ;; Available only on mercurial versions 1.9 or higher
 (unless (string= system-type "windows-nt")
+  (setq monky-hg-executable (expand-file-name "~/Devel/hg/hg"))
   (setq monky-process-type 'cmdserver))
 
 (straight-use-package 'ag)
