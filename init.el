@@ -93,40 +93,6 @@
    '(default ((t (:stipple nil :background "ivory3" :foreground "black" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 130 :width normal :family "hack"))))
    '(column-marker-1-face ((t (:background "#CF1010"))))))
 
-(when (string= system-type "windows-nt")
-  (setq shell-file-name "C:/mozilla-build/msys/bin/bash.exe")
-  (let ((paths
-         '(
-           "C:/mozilla-build/python"
-           "C:/mozilla-build/python/Scripts"
-           "C:/mozilla-build/python3"
-           "C:/mozilla-build/python3/Scripts"
-           "C:/mozilla-build/bin"
-           "C:/mozilla-build/msys/local/bin"
-           "C:/mozilla-build/msys/bin"
-           "C:/mozilla-build/nsis-3.01"
-           "C:/Windows/System32/Wbem"
-           "C:/Windows/System32/WindowsPowerShell/v1.0/"
-           "C:/Windows/System32/OpenSSH/"
-           "C:/Program Files/dotnet/"
-           "C:/Program Files/Microsoft SQL Server/130/Tools/Binn/"
-           "C:/Program Files/Microsoft SQL Server/Client SDK/ODBC/170/Tools/Binn/"
-           "C:/ProgramData/chocolatey/bin"
-           "C:/Git/mingw64/bin"
-           "C:/Git/cmd"
-           "C:/Users/nalexander/.cargo/bin"
-           "C:/Users/nalexander/AppData/Local/Microsoft/WindowsApps"
-           "C:/LLVM/bin"
-           "C:/Users/nalexander/AppData/Roaming/emax64/libexec/emacs/28.0.50/x86_64-w64-mingw32"
-           "C:/Windows/system32"
-           "C:/Windows")))
-    (setenv "PATH" (mapconcat 'identity paths ";"))
-    (setq exec-path (append paths (list "." exec-directory)))))
-
-(if (string= system-type "darwin")
- (add-to-list 'exec-path "/usr/local/bin" t))
-
-
 ;; optionally, uncomment to supress some byte-compiler warnings
 ;;   (see C-h v byte-compile-warnings RET for more info)
 ;; (setq byte-compile-warnings
@@ -241,6 +207,51 @@
 ;; (straight-use-package 'use-package)
 ;; (setq straight-use-package-by-default t)
 
+
+(when (string= system-type "windows-nt")
+  (setq shell-file-name "C:/mozilla-build/msys/bin/bash.exe")
+  (let ((paths
+         '(
+           "C:/mozilla-build/python"
+           "C:/mozilla-build/python/Scripts"
+           "C:/mozilla-build/python3"
+           "C:/mozilla-build/python3/Scripts"
+           "C:/mozilla-build/bin"
+           "C:/mozilla-build/msys/local/bin"
+           "C:/mozilla-build/msys/bin"
+           "C:/mozilla-build/nsis-3.01"
+           "C:/Windows/System32/Wbem"
+           "C:/Windows/System32/WindowsPowerShell/v1.0/"
+           "C:/Windows/System32/OpenSSH/"
+           "C:/Program Files/dotnet/"
+           "C:/Program Files/Microsoft SQL Server/130/Tools/Binn/"
+           "C:/Program Files/Microsoft SQL Server/Client SDK/ODBC/170/Tools/Binn/"
+           "C:/ProgramData/chocolatey/bin"
+           "C:/Git/mingw64/bin"
+           "C:/Git/cmd"
+           "C:/Users/nalexander/.cargo/bin"
+           "C:/Users/nalexander/AppData/Local/Microsoft/WindowsApps"
+           "C:/LLVM/bin"
+           "C:/Users/nalexander/AppData/Roaming/emax64/libexec/emacs/28.0.50/x86_64-w64-mingw32"
+           "C:/Windows/system32"
+           "C:/Windows"
+           "c:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.25.28610/bin/Hostx64/x64")))
+    (setenv "PATH" (mapconcat 'identity paths ";"))
+    (setq exec-path (append paths (list "." exec-directory)))))
+
+;; better $PATH (and other environment variable) handling
+(use-package exec-path-from-shell
+  :defer 0.4
+  ;; :init
+  ;; (setq exec-path-from-shell-arguments           nil
+  ;;       exec-path-from-shell-check-startup-files nil)
+  :config
+  (unless (string= system-type "windows-nt")
+    (exec-path-from-shell-initialize))
+  ;; while we're at it, let's fix access to our running ssh-agent
+  (exec-path-from-shell-copy-env "SSH_AGENT_PID")
+  (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
+
 ;; Early load Org from Git version instead of Emacs built-in version
 (straight-use-package 'org-plus-contrib)
 
@@ -268,18 +279,6 @@
     (load custom-file))
   ;; while at it, treat themes as safe
   (setf custom-safe-themes t))
-
-;; better $PATH (and other environment variable) handling
-(use-package exec-path-from-shell
-  :defer 0.4
-  ;; :init
-  ;; (setq exec-path-from-shell-arguments           nil
-  ;;       exec-path-from-shell-check-startup-files nil)
-  :config
-  (exec-path-from-shell-initialize)
-  ;; while we're at it, let's fix access to our running ssh-agent
-  (exec-path-from-shell-copy-env "SSH_AGENT_PID")
-  (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 
 ;; only one custom theme at a time
 (comment
