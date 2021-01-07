@@ -906,9 +906,10 @@ file tree and can be significantly faster for large repositories."
 
 (use-package elisp-lint)
 
-(use-package shell-switcher
-  :custom
-  (shell-switcher-ask-before-creating-new t))
-
 (straight-use-package
  '(powershell :type git :host github :repo "jschaf/powershell.el"))
+
+(use-package gh)
+
+(straight-use-package
+ '(gist.el :type git :host github :repo "defunkt/gist.el"))
