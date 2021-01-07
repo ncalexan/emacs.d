@@ -913,3 +913,8 @@ file tree and can be significantly faster for large repositories."
 
 (straight-use-package
  '(gist.el :type git :host github :repo "defunkt/gist.el"))
+(use-package dtrt-indent
+  :config
+  (dtrt-indent-global-mode)
+  :diminish)
+
