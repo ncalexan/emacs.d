@@ -329,6 +329,9 @@ file tree and can be significantly faster for large repositories."
 (straight-use-package
  '(searchfox :type git :host github :repo "ncalexan/searchfox.el"))
 
+(straight-use-package
+ '(mach.el :type git :host github :repo "ncalexan/mach.el"))
+
 ;; By default monky spawns a seperate hg process for every command.
 ;; This will be slow if the repo contains lot of changes.
 ;; if `monky-process-type' is set to cmdserver then monky will spawn a single
