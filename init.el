@@ -913,8 +913,19 @@ file tree and can be significantly faster for large repositories."
 
 (straight-use-package
  '(gist.el :type git :host github :repo "defunkt/gist.el"))
+
 (use-package dtrt-indent
   :config
   (dtrt-indent-global-mode)
   :diminish)
+
+;; Try to handle Mozilla's `.jsonlz4` format: doesn't work because format is non-standard.  Leaving this here to
+;; remember how to bump jka-compr next time.
+(add-to-list 'jka-compr-compression-info-list
+             ["\\.jsonlz4\\'"
+              "Lz4 compressing"     "lz4"         ("-c" "-q")
+              "Lz4 uncompressing"   "lz4"         ("-c" "-q" "-d")
+              t t "LZ4"]
+             )
+(jka-compr-update)
 
