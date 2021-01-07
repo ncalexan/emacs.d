@@ -931,3 +931,59 @@ file tree and can be significantly faster for large repositories."
 
 (use-package json-snatcher)
 
+(defvar xpcshell-file-path "/Users/nalexander/Mozilla/objdirs/objdir-browser-compile/dist/bin/xpcshell"
+  "Path to the program used by `run-xpcshell'")
+
+(defvar xpcshell-arguments '()
+  "Commandline arguments to pass to `xpcshell'")
+
+(defvar xpcshell-mode-map
+  (let ((map (nconc (make-sparse-keymap) comint-mode-map)))
+    ;; ;; example definition
+    ;; (define-key map "\t" 'completion-at-point)
+    map)
+  "Basic mode map for `run-xpcshell'")
+
+(defvar xpcshell-prompt-regexp "^\\(?:js> *\\)"
+  "Prompt for `run-xpcshell'.")
+
+(defun run-xpcshell ()
+  "Run an inferior instance of `xpcshell' inside Emacs."
+  (interactive)
+  (let* ((xpcshell-program xpcshell-file-path)
+         (buffer (comint-check-proc "xpcshell")))
+    ;; pop to the "*xpcshell*" buffer if the process is dead, the
+    ;; buffer is missing or it's got the wrong mode.
+    (pop-to-buffer-same-window
+     (if (or buffer (not (derived-mode-p 'xpcshell-mode))
+             (comint-check-proc (current-buffer)))
+         (get-buffer-create (or buffer "*xpcshell*"))
+       (current-buffer)))
+    ;; create the comint process if there is no buffer.
+    (unless buffer
+      (apply 'make-comint-in-buffer "xpcshell" buffer
+             xpcshell-program xpcshell-arguments)
+      (xpcshell-mode))))
+
+(defun xpcshell--initialize ()
+  "Helper function to initialize xpcshell"
+  (setq comint-process-echoes t)
+  (setq comint-use-prompt-regexp t))
+
+(define-derived-mode xpcshell-mode comint-mode "xpcshell"
+  "Major mode for `run-xpcshell'.
+
+\\<xpcshell-mode-map>"
+  nil "xpcshell"
+  ;; this sets up the prompt so it matches things like: [foo@bar]
+  (setq comint-prompt-regexp xpcshell-prompt-regexp)
+  ;; this makes it read only; a contentious subject as some prefer the
+  ;; buffer to be overwritable.
+  (setq comint-prompt-read-only t)
+  ;; this makes it so commands like M-{ and M-} work.
+  (set (make-local-variable 'paragraph-separate) "\\'")
+  ;; (set (make-local-variable 'font-lock-defaults) '(xpcshell-font-lock-keywords t))
+  (set (make-local-variable 'paragraph-start) xpcshell-prompt-regexp))
+
+;; this has to be done in a hook. grumble grumble.
+(add-hook 'xpcshell-mode-hook 'xpcshell--initialize)
