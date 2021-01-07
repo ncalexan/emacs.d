@@ -929,3 +929,5 @@ file tree and can be significantly faster for large repositories."
              )
 (jka-compr-update)
 
+(use-package json-snatcher)
+
