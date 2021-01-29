@@ -331,6 +331,10 @@ file tree and can be significantly faster for large repositories."
          :fork "ncalexan/monky"))
 
 (straight-use-package
+ '(manky :type git :host github :repo "ncalexan/manky"
+         :branch "manky"))
+
+(straight-use-package
  '(searchfox :type git :host github :repo "ncalexan/searchfox.el"))
 
 (straight-use-package
