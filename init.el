@@ -988,3 +988,6 @@ file tree and can be significantly faster for large repositories."
 
 ;; this has to be done in a hook. grumble grumble.
 (add-hook 'xpcshell-mode-hook 'xpcshell--initialize)
+
+(straight-use-package
+ '(cucumber.el :type git :host github :repo "michaelklishin/cucumber.el"))
