@@ -295,6 +295,10 @@
 ;;; VCS.
 
 (straight-use-package 'magit)
+;; Avoid a potential performance issue on macOS: https://magit.vc/manual/magit.html#MacOS-Performance.
+(when (string= system-type "darwin")
+  (setq magit-git-executable "/usr/local/bin/git"))
+
 ; (straight-use-package
 ; '(forge :type git :host github :repo "magit/forge" :after magit))
 (straight-use-package '(forge :host github :repo "magit/forge"))
