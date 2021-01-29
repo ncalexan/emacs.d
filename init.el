@@ -667,15 +667,15 @@ file tree and can be significantly faster for large repositories."
 (defun cb (name)
   (interactive "sFind name in hierarchy: ")
   (let ((regexp (pcase major-mode
-                  (python-mode (format "^\\( *\\(cp\\|c\\)?def.*%s\\|class\\|cdef class\\).*:$" name))
-                  (rust-mode (format "^\\s-*\\(\\_<pub\\((crate)\\)?\\s-*\\)?\\_<\\(fn\\|impl\\|type\\|enum\\|struct\\|use\\|const\\|static\\|trait\\)\\_>.*%s" name)))))
+                  ('python-mode (format "^\\( *\\(cp\\|c\\)?def.*%s\\|class\\|cdef class\\).*:$" name))
+                  ('rust-mode (format "^\\s-*\\(\\_<pub\\((crate)\\)?\\s-*\\)?\\_<\\(fn\\|impl\\|type\\|enum\\|struct\\|use\\|const\\|static\\|trait\\)\\_>.*%s" name)))))
     (occur regexp)))
 
 (defun ub (name)
   (interactive "sFind usages in hierarchy: ")
   (let ((regexp (pcase major-mode
-                  (python-mode (format "^\\(\\( *\\(cp\\|c\\)?def\\|class\\|cdef class\\).*:$\\)\\|.*%s.*" name))
-                  (rust-mode (format "^\\s-*\\(\\_<pub\\((crate)\\)?\\s-*\\)?\\_<\\(fn\\|impl\\|type\\|enum\\|struct\\|use\\|const\\|static\\|trait\\)\\_>.*%s" name)))))
+                  ('python-mode (format "^\\(\\( *\\(cp\\|c\\)?def\\|class\\|cdef class\\).*:$\\)\\|.*%s.*" name))
+                  ('rust-mode (format "^\\s-*\\(\\_<pub\\((crate)\\)?\\s-*\\)?\\_<\\(fn\\|impl\\|type\\|enum\\|struct\\|use\\|const\\|static\\|trait\\)\\_>.*%s" name)))))
     (occur regexp)))
 
 (straight-use-package 'request)
