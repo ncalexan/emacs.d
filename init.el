@@ -999,3 +999,6 @@ file tree and can be significantly faster for large repositories."
 
 (straight-use-package
  '(cucumber.el :type git :host github :repo "michaelklishin/cucumber.el"))
+
+(use-package restclient)
+
