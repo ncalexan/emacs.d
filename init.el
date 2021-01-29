@@ -728,6 +728,7 @@ file tree and can be significantly faster for large repositories."
   (add-hook 'eshell-mode-hook 'with-editor-export-editor))
 
 (use-package diminish)
+(eval-after-load "projectile" '(diminish 'projectile-mode))
 
 (use-package ivy
   :diminish
