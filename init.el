@@ -1002,3 +1002,8 @@ file tree and can be significantly faster for large repositories."
 
 (use-package restclient)
 
+(straight-use-package
+ '(kotlin-mode :type git :host github :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode"))
+
+(straight-use-package
+ '(swift-mode :type git :host github :repo "swift-emacs/swift-mode"))
