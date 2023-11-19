@@ -253,7 +253,7 @@
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 
 ;; Early load Org from Git version instead of Emacs built-in version
-(straight-use-package 'org-plus-contrib)
+; (straight-use-package 'org-plus-contrib)
 
 (straight-use-package 'bind-key)
 
@@ -294,10 +294,13 @@
 
 ;;; VCS.
 
-(straight-use-package 'magit)
+(straight-use-package
+ '(magit :type git :host github :repo "magit/magit"))
+
 ;; Avoid a potential performance issue on macOS: https://magit.vc/manual/magit.html#MacOS-Performance.
 (when (string= system-type "darwin")
-  (setq magit-git-executable "/usr/local/bin/git"))
+  ;; (setq magit-git-executable "/usr/local/bin/git")
+  (setq magit-git-executable "git"))
 
 ; (straight-use-package
 ; '(forge :type git :host github :repo "magit/forge" :after magit))
@@ -340,17 +343,26 @@ file tree and can be significantly faster for large repositories."
 (straight-use-package
  '(mach.el :type git :host github :repo "ncalexan/mach.el"))
 
+(add-to-list 'safe-local-eval-forms
+             '(mach-mode 1))
+
+(straight-use-package
+ '(erecord-mode :type git :host github :repo "ncalexan/erecord-mode"))
+
 ;; By default monky spawns a seperate hg process for every command.
 ;; This will be slow if the repo contains lot of changes.
 ;; if `monky-process-type' is set to cmdserver then monky will spawn a single
 ;; cmdserver and communicate over pipe.
 ;; Available only on mercurial versions 1.9 or higher
 (unless (string= system-type "windows-nt")
-  (setq monky-hg-executable (expand-file-name "~/Devel/hg/hg"))
-  (setq monky-process-type 'cmdserver))
+  (setq monky-hg-executable (expand-file-name "~/Devel/hg/contrib/chg/chg"))
+  (setq monky-process-type nil)
+  ;; (setq monky-process-type 'cmdserver)
+)
 
 (straight-use-package 'ag)
 (straight-use-package 'ripgrep)
+(straight-use-package 'deadgrep)
 (straight-use-package 'projectile)
 
 (projectile-mode +1)
@@ -363,6 +375,9 @@ file tree and can be significantly faster for large repositories."
 (defalias 'ms #'projectile-vc)
 (defalias 'occ #'occur)
 
+(defalias 'dms #'magit-describe-section)
+(defalias 'dtp #'describe-text-properties)
+
 (straight-use-package 'wgrep-ag)
 (autoload 'wgrep-ag-setup "wgrep-ag")
 (add-hook 'ag-mode-hook #'wgrep-ag-setup)
@@ -374,6 +389,7 @@ file tree and can be significantly faster for large repositories."
 
 (straight-use-package 'rust-mode)
 (with-eval-after-load 'rust-mode
+  (require 'company)
   (define-key rust-mode-map (kbd "TAB") #'company-indent-or-complete-common))
 
 (straight-use-package 'cargo)
@@ -388,7 +404,7 @@ file tree and can be significantly faster for large repositories."
 (add-hook 'racer-mode-hook #'eldoc-mode)
 (add-hook 'racer-mode-hook #'company-mode)
 
-(add-hook 'rust-mode-hook #'racer-mode)
+;; (add-hook 'rust-mode-hook #'racer-mode)
 
 (add-hook 'cargo-process-mode-hook #'cargo-minor-mode)
 
@@ -488,6 +504,13 @@ file tree and can be significantly faster for large repositories."
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
 
+;;; From https://emacs.stackexchange.com/a/26514.
+;; (defun add-server-postfix ()
+;;   "Add the name of the connection type and server to the buffer name"
+;;   (if (string-match "^/ssh:.*?:" (buffer-file-name (current-buffer)))
+;;       (rename-buffer (concat (buffer-name (current-buffer)) "<" (match-string 0 (buffer-file-name (current-buffer))) ">")) nil))
+;; (add-hook 'find-file-hook 'add-server-postfix)
+
 ;; Change backup behavior to save in a directory
 (setq backup-by-copying t      ; don't clobber symlinks
       backup-directory-alist '(("." . "~/.emacs.backups")) ; don't litter my fs tree
@@ -545,6 +568,7 @@ file tree and can be significantly faster for large repositories."
 (add-to-list 'auto-mode-alist '("\\.mozbuild$" . python-mode))
 (add-to-list 'auto-mode-alist '("\\.configure$" . python-mode))
 (add-to-list 'auto-mode-alist '("config\\.status$" . python-mode))
+(add-to-list 'auto-mode-alist '("\\.mjs\\'" . javascript-mode))
 
 (straight-use-package 'groovy-mode)
 (add-to-list 'auto-mode-alist '("\\.gradle$" . groovy-mode))
@@ -635,7 +659,7 @@ file tree and can be significantly faster for large repositories."
 
 (use-package dired-filter)
 
-(dired-async-mode 1)
+;; (dired-async-mode 1)
 
 ;; Shift the selected region right if distance is postive, left if negative
 (defun shift-region (distance)
@@ -682,19 +706,11 @@ file tree and can be significantly faster for large repositories."
 
 (use-package realgud)
 (use-package realgud-lldb)
-
-;; It's not clear to me why just setting the "python" interpreter doesn't work on Windows, but it doesn't, so we do it
-;; by hand.
-;;
-;; TODO: parse the list of python2/python3 commands ourselves and do our own dispatch to save process re-invocation.
-(defun nca/eshell-mach-interpreter (command &rest args)
-  (throw 'eshell-replace-command
-         (eshell-parse-command shell-file-name (cons command args))))
+;; To use: `(require 'realgud-lldb)' and then `realgud-lldb'.
 
 (with-eval-after-load 'eshell
   (add-to-list
-   'eshell-interpreter-alist (cons "^\\(\\./\\)?mach\\'"
-                                   #'nca/eshell-mach-interpreter)))
+   'eshell-interpreter-alist (cons "^\\(\\./\\)?mach\\'" "/usr/local/bin/python3")))
 
 (defun eshell/mach (&rest args)
   "Use `compile' to run mach in the background."
@@ -711,55 +727,100 @@ file tree and can be significantly faster for large repositories."
 
 (put 'eshell/mach 'eshell-no-numeric-conversions t)
 
+(defun narrow-to-eshell-last-output ()
+  (interactive)
+  (narrow-to-region eshell-last-output-start eshell-last-output-end))
+
 (defun nca/eshell-mode-hook ()
   (when (string= system-type "windows-nt")
     (eshell/export "MOZILLABUILD=c:\\mozilla-build\\"))
   (eshell/export "INSIDE_EMACS=1")
   (eshell/export "EDITOR=emacsclient")
   (define-key eshell-mode-map (kbd "<tab>")
-    (lambda () (interactive) (pcomplete-std-complete))))
+    (lambda () (interactive) (pcomplete-std-complete)))
+  (define-key eshell-mode-map (kbd "C-x n o")
+    'narrow-to-eshell-last-output))
 
 (add-hook 'eshell-mode-hook 'nca/eshell-mode-hook)
 ;; (remove-hook 'eshell-mode-hook 'nca/eshell-mode-hook)
 
-(use-package shell-switcher
-  :custom
-  (shell-switcher-ask-before-creating-new t))
+;; (use-package shell-switcher
+;;   :custom
+;;   (shell-switcher-ask-before-creating-new t))
+
+(use-package shelldon
+  :straight (shelldon :type git
+                      :host github
+                      :repo "Overdr0ne/shelldon"
+                      :branch "master"
+                      :files ("shelldon.el")))
 
 (use-package package-lint)
 
 (use-package with-editor
-  :demand
+  ;; :demand
   :config
   (add-hook 'shell-mode-hook  'with-editor-export-editor)
   (add-hook 'term-exec-hook   'with-editor-export-editor)
   (add-hook 'eshell-mode-hook 'with-editor-export-editor))
 
+(defun with-editor-find-file-hook ()
+  "Open HG editor invocations in `with-editor-mode`."
+  (when (s-matches-p "^hg-editor-" (file-name-nondirectory (file-name-sans-versions (buffer-file-name))))
+    (with-editor-mode 1)))
+
+(add-hook 'find-file-hook #'with-editor-find-file-hook)
+
 (use-package diminish)
 (eval-after-load "projectile" '(diminish 'projectile-mode))
 
-(use-package ivy
-  :diminish
-  ivy-mode
-  :init
-  (setq ivy-use-virtual-buffers t)
-  (ivy-mode 1)
+(use-package selectrum
+  :ensure t
   :config
-  (setq ivy-wrap t)
-  (setq ivy-fixed-height-minibuffer t)
-  (define-key ivy-minibuffer-map (kbd "C-s") 'ivy-next-line)
-  (define-key ivy-minibuffer-map (kbd "C-r") 'ivy-previous-line)
-  (setq ivy-re-builders-alist
-        '((t . ivy--regex-ignore-order)))
-  ;; Order buffers by recency: see https://github.com/abo-abo/swiper/issues/1344.
-  (setq ivy-sort-matches-functions-alist '((t . nil)))
-  (setq projectile-completion-system 'ivy)
-  (setq magit-completing-read-function 'ivy-completing-read))
+  ;; TODO: C-k to kill buffers inline.  Supposed to use embark?
+  (define-key selectrum-minibuffer-map (kbd "C-s") #'selectrum-next-candidate)
+  (define-key selectrum-minibuffer-map (kbd "C-r") #'selectrum-previous-candidate))
+
+(use-package prescient
+  :ensure t
+  :config
+  ;; Save command history to disk, so that sorting gets more intelligent over time.
+  (prescient-persist-mode +1))
+
+(use-package selectrum-prescient
+  :ensure t)
+
+(use-package orderless
+  :ensure t
+  :custom (completion-styles '(orderless)))
+
+(selectrum-mode +1)
+(selectrum-prescient-mode +1)
+(prescient-persist-mode +1)
+
+;; (use-package ivy
+;;   :diminish
+;;   ivy-mode
+;;   :init
+;;   (setq ivy-use-virtual-buffers t)
+;;   (ivy-mode 1)
+;;   :config
+;;   (setq ivy-wrap t)
+;;   (setq ivy-fixed-height-minibuffer t)
+;;   (define-key ivy-minibuffer-map (kbd "C-s") 'ivy-next-line)
+;;   (define-key ivy-minibuffer-map (kbd "C-r") 'ivy-previous-line)
+;;   (setq ivy-re-builders-alist
+;;         '((t . ivy--regex-ignore-order)))
+;;   ;; Order buffers by recency: see https://github.com/abo-abo/swiper/issues/1344.
+;;   (setq ivy-sort-matches-functions-alist '((t . nil)))
+;;   (setq projectile-completion-system 'ivy)
+;;   (setq magit-completing-read-function 'ivy-completing-read))
 
 (use-package dumb-jump
   :init
   (progn
     (setq dumb-jump-selector 'ivy)
+    (setq dumb-jump-force-searcher 'rg)
     (dumb-jump-mode 1))
   :bind
   (:map dumb-jump-mode-map
@@ -827,9 +888,6 @@ file tree and can be significantly faster for large repositories."
 (use-package replace+
   :demand)
 
-;; use the settings in ~/.ssh/config instead of Tramp's
-(setq tramp-use-ssh-controlmaster-options nil)
-
 ;; Helpers for browsing Bugzilla and quickly googling things.
 (defun nca/bugzilla-url-at-point ()
   (or (thing-at-point 'url t)
@@ -855,29 +913,80 @@ file tree and can be significantly faster for large repositories."
 
 (defalias 'g 'nca/browse-url-google)
 
-(unless (string= system-type "windows-nt")
-  (use-package tramp
-    :ensure t
-    :init
-    (setq tramp-default-method "scp")
-    :config
-    (setq tramp-verbose 6)
-    (add-to-list 'tramp-remote-path 'tramp-own-remote-path t)
+(defalias 'lp 'list-processes)
 
-    (connection-local-set-profile-variables
-     'remote-bash
-     '((shell-file-name . "/bin/bash")
-       (shell-command-switch . "-c")
-       (shell-interactive-switch . "-i")
-       (shell-login-switch . "-l")))
+;; (straight-use-package
+;;  '(tramp :type git :host  :repo "ncalexan/searchfox.el"))
 
-    (connection-local-set-profile-variables
-     'remote-null-device
-     '((null-device . "/dev/null")))
+(use-package tramp
+  :init
+  ;; Use the settings in ~/.ssh/config instead of Tramp's settings.  This can
+  ;; allow to reuse a single ssh connection.
+  (setq tramp-use-ssh-controlmaster-options nil)
 
-    (connection-local-set-profiles
-     '(:machine "weirdo")
-     'remote-bash 'remote-null-device)))
+  :config
+  (setq tramp-default-method "ssh")
+  (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
+  (progn
+    (setq tramp-connection-properties nil)
+    (add-to-list 'tramp-connection-properties
+                 (list (regexp-quote "/ssh:nanger:")
+                       "direct-async-process" t))
+    (add-to-list 'tramp-connection-properties
+                 (list (regexp-quote "/ssh:dama:")
+                       "login-args" '(("-l" "%u") ("-p" "%p") ("%c") ("-e" "none") ("%h")
+                                      ("c:/mozilla-build/start-shell.bat")
+                                      ;; MOZILLABUILD=C:\\\\\\\\mozilla-build c:/mozilla-build/msys/bin/bash.exe --login -i
+                                      ;; ("c:/mozilla-build/msys/bin/bash.exe" "--login" "-i")
+                                      )
+                       "direct-async-process" t
+                       ))
+    ;; (clrhash tramp-cache-data)
+    ;; (tramp-dump-connection-properties)
+    ;; (tramp-cleanup-all-connections)
+    (setq tramp-verbose 10))
+
+  (connection-local-set-profile-variables
+   'nanger
+   '((shell-file-name . "/bin/bash")
+     (tramp-remote-path . ("~/.cargo/bin" tramp-default-remote-path))
+     (magit-git-executable . "git")
+     (monky-hg-executable . "/usr/bin/hg")))
+  (connection-local-set-profiles
+   '(:machine "nanger")
+   'nanger)
+  ;; (connection-local-set-profile-variables
+  ;;  'dama
+  ;;  '((tramp-login-args (("-l" "%u") ("-p" "%p") ("%c") ("-e" "none") ("%h") ("c:/mozilla-build/start-shell.bat")))
+  ;;    (monky-hg-executable . "/c/mozilla-build/python/Scripts/hg")))
+  ;; (connection-local-set-profiles
+  ;;  '(:machine "dama")
+  ;;  'dama)
+  )
+
+;; (unless (string= system-type "windows-nt")
+;;   (use-package tramp
+;;     :ensure t
+;;     :init
+;;     (setq tramp-default-method "scp")
+;;     :config
+;;     (setq tramp-verbose 6)
+;;     (add-to-list 'tramp-remote-path 'tramp-own-remote-path t)
+
+;;     (connection-local-set-profile-variables
+;;      'remote-bash
+;;      '((shell-file-name . "/bin/bash")
+;;        (shell-command-switch . "-c")
+;;        (shell-interactive-switch . "-i")
+;;        (shell-login-switch . "-l")))
+
+;;     (connection-local-set-profile-variables
+;;      'remote-null-device
+;;      '((null-device . "/dev/null")))
+
+;;     (connection-local-set-profiles
+;;      '(:machine "weirdo")
+;;      'remote-bash 'remote-null-device)))
 
 ;; From https://www.reddit.com/r/emacs/comments/h138pp/what_is_the_best_method_you_have_found_for/ftqz8l3/.
 (defun nca/add-point-to-find-tag-marker-ring (&rest r)
@@ -1002,8 +1111,146 @@ file tree and can be significantly faster for large repositories."
 
 (use-package restclient)
 
+;; (defun nca/tramp-insertion-filter (proc string)
+;;   (when (buffer-live-p (process-buffer proc))
+;;     (with-current-buffer (process-buffer proc)
+;;       (let ((moving (= (point) (process-mark proc))))
+;;         (save-excursion
+;;           ;; Insert the text, advancing the process marker.
+;;           (goto-char (process-mark proc))
+;;           (insert string)
+;;           (message "nca/tramp 1 %S %S" (process-mark proc) (point))
+;;           (let ((end-marker (copy-marker (point)))
+;;                 ;; (ansi-color-context-region nil)
+;;                 )
+;;             (ansi-color-filter-region (point-min) end-marker)
+;;             (message "nca/tramp 2 %S %S" (process-mark proc) end-marker)
+;;             (goto-char (process-mark proc))
+;;             (save-match-data
+;;               (while (re-search-forward "$" end-marker t)
+;;                 (replace-match "" nil nil)))
+;;             (goto-char end-marker))
+;;           (set-marker (process-mark proc) (point)))
+;;         (if moving (goto-char (process-mark proc)))))))
+
+;; (eval-after-load 'tramp-sh
+;;   (progn
+;;     (defadvice tramp-open-connection-setup-interactive-shell
+;;         (before nca/tramp-open-connection-setup-interactive-shell activate)
+;;       "Add process-sentinel to tramp-shells. Kill buffer when process died."
+;;       (set-process-filter
+;; 	   ;; Arg 0 is proc
+;; 	   (ad-get-arg 0)
+;;        #'nca/tramp-insertion-filter))))
+
+;; (defun nca/tramp-open-connection-setup-interactive-shell (proc vec)
+;;   ;; (message "nca/tramp old process-coding-system is %S" (process-coding-system proc))
+;;   ;; (set-process-coding-system proc 'dos 'utf-8-unix)
+;;   ;; (message "nca/tramp new process-coding-system is %S" (process-coding-system proc))
+;;   (setq ansi-color-context-region nil)
+;;   (set-process-filter
+;;    proc
+;;    #'nca/tramp-insertion-filter))
+
+;; (advice-add 'tramp-open-connection-setup-interactive-shell
+;;             :before #'nca/tramp-open-connection-setup-interactive-shell)
+
+;; (advice-remove 'tramp-open-connection-setup-interactive-shell
+;;                #'nca/tramp-open-connection-setup-interactive-shell)
+
+
+;; (setq tramp-methods (assoc-delete-all "sshw" tramp-methods #'equal))
+
+;; (with-eval-after-load 'tramp
+;;   (require 'tramp)
+;;   (add-to-list 'tramp-remote-path 'tramp-own-remote-path t)
+;;   (add-to-list
+;;    'tramp-methods
+;;    '("sshw"
+;;      (tramp-login-program "ssh")
+;;      (tramp-login-args (("-l" "%u") ("-p" "%p") ("%c") ("-e" "none") ("%h") ("c:/mozilla-build/start-shell.bat")))
+;;      (tramp-async-args (("-q")))
+;;      (tramp-direct-async t)
+;;      (tramp-remote-shell "/bin/sh")
+;;      (tramp-remote-shell-login ("-l"))
+;;      (tramp-remote-shell-args ("-c")))))
+
+;; (alist-get "sshw" tramp-methods nil nil #'equal)
+
+;; ((tramp-login-program "ssh") (tramp-login-args (("-l" "%u") ("-p" "%p") ("%c") ("-e" "none") ("%h"))) (tramp-async-args (("-q"))) (tramp-direct-async t) (tramp-remote-shell "/bin/sh") (tramp-remote-shell-login ("-l")) (tramp-remote-shell-args ("-c")))
+
 (straight-use-package
  '(kotlin-mode :type git :host github :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode"))
 
 (straight-use-package
  '(swift-mode :type git :host github :repo "swift-emacs/swift-mode"))
+
+(straight-use-package 'ztree)
+
+(straight-use-package
+ '(flash-region :type git :host github :repo "Fuco1/flash-region"))
+
+(cl-defun magit-describe-section-tree (section &optional (indent 0))
+  (message "%d %s" indent (magit-describe-section-briefly section))
+  (--each
+      (oref section children)
+    (magit-describe-section-tree it (1+ indent))))
+
+;; From https://gist.github.com/cpbotha/05e07dee7fd8243ba73339be186c0b88
+;; https://emacs.stackexchange.com/a/3843/8743 original code
+;; cpbotha.net made small improvements to ergonomics
+
+;; cpbotha changes:
+;; - by default extract files WITHOUT their relative directories into DIR,
+;;   because that's what I expect in OFMs.
+(defun archive-extract-to-file (archive-name item-name command dir keep-relpath)
+  "Extract ITEM-NAME from ARCHIVE-NAME using COMMAND. Save to
+DIR. If KEEP-RELPATH, extract with relative path otherwise don't."
+  (unwind-protect
+      (let* ((file-name (if keep-relpath
+                            ;; remove the leading / from the file name to force
+                            ;; expand-file-name to interpret its path as relative to dir
+                            (if (string-match "\\`/" item-name)
+                                (substring item-name 1)
+                              item-name)
+                          ;; by default just strip the path completely
+                          (file-name-nondirectory item-name)))
+             (output-file (expand-file-name file-name dir))
+             (output-dir (file-name-directory output-file)))
+        ;; create the output directory (and its parents) if it does
+        ;; not exist yet
+        (unless (file-directory-p output-dir)
+          (make-directory output-dir t))
+        ;; execute COMMAND, redirecting output to output-file
+        (apply #'call-process
+               (car command)            ;program
+               nil                      ;infile
+               `(:file ,output-file)    ;destination
+               nil                      ;display
+               (append (cdr command) (list archive-name item-name))))
+    ;; FIXME: add unwind forms
+    nil))
+
+;; cpbotha changes:
+;; - extract to OTHER dired pane, OR to directory containing archive if there
+;;   is no other dired pane
+(defun archive-extract-marked-to-file (keep-relpath)
+  "Extract marked archive items to OUTPUT-DIR. If KEEP-RELPATH is non-nil
+   or prefix-arg (C-u) is set, keep relative paths of files in archive,
+   otherwise don't."
+  (interactive "P")
+  (let ((output-dir (or (dired-dwim-target-directory) default-directory))
+        (command (symbol-value (archive-name "extract")))
+        (archive (buffer-file-name))
+        (items (archive-get-marked ?* t))) ; get marked items; t means
+                                        ; get item under point if
+                                        ; nothing is marked
+    (mapc
+     (lambda (item)
+       (archive-extract-to-file archive
+                                ;; get the name from the descriptor
+                                (archive--file-desc-ext-file-name item)
+                                command output-dir keep-relpath))
+     items)))
+
+;; (provide 'archive-extract-to-file)
